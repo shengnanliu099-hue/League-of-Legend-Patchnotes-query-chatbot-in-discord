@@ -1,72 +1,70 @@
 # LoL Version Watcher (Discord Bot)
 
-一个 Java Discord 机器人：定时检查《英雄联盟》版本号是否更新，有更新就推送到指定频道。
+A Java-based Discord bot that monitors League of Legends version updates.
+When a new LIVE version is detected, it automatically posts to configured Discord channel(s).
 
-## 功能
+## Features
 
-- 定时请求 Riot Data Dragon 版本接口（默认：`https://ddragon.leagueoflegends.com/api/versions.json`）
-- 本地持久化上次已通知版本，避免重复发送
-- 检测到新版本时自动发送频道消息
-- 新版本消息会自动附带补丁内容摘要（从官方补丁文章提取）
-- 支持 Discord Slash 命令手动查询：
-  - `/lolcheck_live`：查询正式服更新
-  - `/lolcheck_pbe`：查询 PBE 构建更新
+- Periodically checks Riot Data Dragon versions API (default: `https://ddragon.leagueoflegends.com/api/versions.json`)
+- Persists last notified LIVE/PBE versions locally to avoid duplicate notifications
+- Auto-pushes updates only for **LIVE** version changes
+- Appends an auto-generated LIVE patch summary (title/highlights/link) to LIVE update messages
+- Supports manual slash commands:
+  - `/lolcheck_live`: check LIVE version
+  - `/lolcheck_pbe`: check PBE build (with VPBE wiki info)
+- Supports multi-server channel binding for LIVE auto notifications
 
-## 环境要求
+## Requirements
 
 - Java 17+
 - Maven 3.9+
-- 一个 Discord Bot Token
-- 目标频道 ID（`DISCORD_CHANNEL_ID`）
+- A Discord Bot Token
 
-## 配置
+## Configuration (Environment Variables)
 
-通过环境变量配置：
+- `DISCORD_TOKEN` (required): Discord bot token
+- `DISCORD_CHANNEL_ID` (optional): legacy single-channel fallback channel ID
+- `CHECK_INTERVAL_MINUTES` (optional): check interval in minutes, default `30`
+- `LOL_VERSIONS_URL` (optional): LIVE versions API URL
+- `LOL_PBE_VERSION_URL` (optional): PBE version API URL, default `https://raw.communitydragon.org/pbe/content-metadata.json`
+- `LOL_PBE_PATCH_NOTES_URL` (optional): PBE notes feed link shown in `/lolcheck_pbe` replies
+- `LOL_VPBE_WIKI_URL` (optional): VPBE wiki URL shown in `/lolcheck_pbe` replies
+- `LOL_LIVE_PATCH_NOTES_URL` (optional): LIVE patch notes index URL used for auto summary extraction
+- `STATE_FILE` (optional): LIVE state file path, default `data/lol-last-version.txt`
+- `PBE_STATE_FILE` (optional): PBE state file path, default `data/lol-last-pbe-version.txt`
+- `GUILD_CHANNELS_FILE` (optional): per-guild LIVE channel binding file, default `data/guild-live-channels.json`
+- `POST_ON_STARTUP_INITIALIZATION` (optional): whether to post initialization message when baseline is first created, default `false`
 
-- `DISCORD_TOKEN`：必填，机器人 token
-- `DISCORD_CHANNEL_ID`：可选，兼容旧版的单频道推送 ID（数字）
-- `CHECK_INTERVAL_MINUTES`：可选，检查间隔（分钟），默认 `30`
-- `LOL_VERSIONS_URL`：可选，版本接口地址，默认 Riot Data Dragon
-- `LOL_PBE_VERSION_URL`：可选，PBE 版本接口，默认 `https://raw.communitydragon.org/pbe/content-metadata.json`
-- `LOL_PBE_PATCH_NOTES_URL`：可选，PBE 参考链接（展示在 `/lolcheck_pbe` 回复中）
-- `LOL_VPBE_WIKI_URL`：可选，VPBE Wiki 链接（`/lolcheck_pbe` 会附带其页面更新信息）
-- `LOL_LIVE_PATCH_NOTES_URL`：可选，正式服补丁列表入口（用于自动摘要抓取）
-- `PBE_STATE_FILE`：可选，PBE 状态文件路径，默认 `data/lol-last-pbe-version.txt`
-- `GUILD_CHANNELS_FILE`：可选，多服务器 LIVE 频道绑定文件，默认 `data/guild-live-channels.json`
-- `POST_ON_STARTUP_INITIALIZATION`：可选，首次无历史状态时是否发初始化消息，默认 `false`
-- `STATE_FILE`：可选，状态文件路径，默认 `data/lol-last-version.txt`
-
-## 构建
+## Build
 
 ```bash
 mvn -q -DskipTests package
 ```
 
-产物：`target/lol-version-watcher-1.0.0.jar`
+Artifact:
 
-## 运行
+- `target/lol-version-watcher-1.0.0.jar`
+
+## Run
 
 ```bash
-export DISCORD_TOKEN="你的token"
-export DISCORD_CHANNEL_ID="123456789012345678"
+export DISCORD_TOKEN="your_token"
 export CHECK_INTERVAL_MINUTES="30"
 
 java -jar target/lol-version-watcher-1.0.0.jar
 ```
 
-## Discord 机器人权限
+## Discord Permissions
 
-把机器人邀请到服务器时，确保至少有：
+When inviting the bot, ensure it has at least:
 
 - View Channels
 - Send Messages
-- Use Application Commands（斜杠命令）
+- Use Application Commands
 
-如果频道没找到，程序会报错并打印日志。
+## Slash Commands
 
-## 手动触发
-
-机器人在线后，在服务器输入：
+Use these commands in your Discord server:
 
 ```text
 /lolcheck_live
@@ -75,7 +73,13 @@ java -jar target/lol-version-watcher-1.0.0.jar
 /clear_live_channel
 ```
 
-- `/lolcheck_live`：立即检查正式服版本；即使没有新版本，也会返回当前版本补丁摘要与链接。
-- `/lolcheck_pbe`：立即检查 PBE 构建版本，只返回查询结果，不会触发自动频道推送；并附带 VPBE Wiki 更新信息。
-- `/set_live_channel`：为当前服务器设置 LIVE 自动推送频道（需要 Manage Server 权限）。
-- `/clear_live_channel`：清除当前服务器的 LIVE 自动推送频道（需要 Manage Server 权限）。
+- `/lolcheck_live`: manually checks LIVE version; if no update, still returns the current LIVE patch summary
+- `/lolcheck_pbe`: manually checks PBE build; does **not** trigger auto channel push; includes VPBE wiki info
+- `/set_live_channel`: sets this server's channel for LIVE auto notifications (requires `Manage Server`)
+- `/clear_live_channel`: removes this server's LIVE auto notification binding (requires `Manage Server`)
+
+## Auto Notification Behavior
+
+- Automatic push is triggered only by **LIVE** version changes.
+- PBE updates are **manual query only**.
+- Each server can bind its own LIVE notification channel using `/set_live_channel`.
