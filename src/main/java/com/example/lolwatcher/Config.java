@@ -30,7 +30,7 @@ public record Config(
         String token = require(env, "DISCORD_TOKEN");
         Long channelId = parseOptionalLong(env.get("DISCORD_CHANNEL_ID"), "DISCORD_CHANNEL_ID");
 
-        long intervalMinutes = parseLong(env.getOrDefault("CHECK_INTERVAL_MINUTES", "30"), "CHECK_INTERVAL_MINUTES");
+        long intervalMinutes = parseLong(env.getOrDefault("CHECK_INTERVAL_MINUTES", "1440"), "CHECK_INTERVAL_MINUTES");
         if (intervalMinutes <= 0) {
             throw new IllegalArgumentException("CHECK_INTERVAL_MINUTES must be > 0");
         }

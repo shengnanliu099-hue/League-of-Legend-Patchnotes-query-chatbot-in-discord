@@ -24,7 +24,7 @@ When a new LIVE version is detected, it automatically posts to configured Discor
 
 - `DISCORD_TOKEN` (required): Discord bot token
 - `DISCORD_CHANNEL_ID` (optional): legacy single-channel fallback channel ID
-- `CHECK_INTERVAL_MINUTES` (optional): check interval in minutes, default `30`
+- `CHECK_INTERVAL_MINUTES` (optional): check interval in minutes, default `1440` (once per day)
 - `LOL_VERSIONS_URL` (optional): LIVE versions API URL
 - `LOL_PBE_VERSION_URL` (optional): PBE version API URL, default `https://raw.communitydragon.org/pbe/content-metadata.json`
 - `LOL_PBE_PATCH_NOTES_URL` (optional): PBE notes feed link shown in `/lolcheck_pbe` replies
@@ -49,7 +49,7 @@ Artifact:
 
 ```bash
 export DISCORD_TOKEN="your_token"
-export CHECK_INTERVAL_MINUTES="30"
+export CHECK_INTERVAL_MINUTES="1440"
 
 java -jar target/lol-version-watcher-1.0.0.jar
 ```
