@@ -3,3 +3,4 @@
 *.iml
 /data/
 .DS_Store
+local.env

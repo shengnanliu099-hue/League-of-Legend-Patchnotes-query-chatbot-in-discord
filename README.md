@@ -48,11 +48,13 @@ Artifact:
 ## Run
 
 ```bash
-export DISCORD_TOKEN="your_token"
-export CHECK_INTERVAL_MINUTES="1440"
-
-java -jar target/lol-version-watcher-1.0.0.jar
+cp local.env.example local.env
+# edit local.env and set your real DISCORD_TOKEN
+mvn -q -DskipTests package
+./run.sh
 ```
+
+`local.env` is ignored by Git, so your token stays out of the repository and out of shell history.
 
 ## Discord Permissions
 
